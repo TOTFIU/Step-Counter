@@ -70,15 +70,24 @@ namespace TRAINER.Models
                 else
                 {
                     foreach (var User in Objects)
+                    {//Здесь теряется один разпустов кто-то там, (в 13 день его нет) (как его вернуть?)
+
+                        
+
                         foreach (var User1 in _userDataList)
                         {
-                            if (User1.User == User.User)
+                            
+                            if (User.User == User1.User)
                             {
+                                
                                 User1.Steps.Add(days, User.Steps[days]);
                                 User1.Status.Add(days, User.Status[days]);
                                 User1.Rank.Add(days, User.Rank[days]);
+
                             }
                         }
+
+                    }
                 }
 
 

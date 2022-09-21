@@ -1,11 +1,14 @@
-﻿using OxyPlot;
+﻿using Newtonsoft.Json;
+using OxyPlot;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Shapes;
+using TRAINER.Commands;
 using TRAINER.Models;
 using DataPoint = TRAINER.Models.DataPoint;
 
@@ -19,7 +22,7 @@ namespace TRAINER.ViewModel
 
         private BindingList<UserModel_InData> _userDataList;
         public ObservableCollection<UserModel_InTable> USERS { get; set; }
-
+        private bool _ISSELECTED;
         //public Polyline MyPolyLine
         //{
         //    get { return myPolyLine; }
@@ -29,7 +32,15 @@ namespace TRAINER.ViewModel
         //        OnPropertyChanged("MyPolyLine");
         //    }
         //}
-        
+        public bool ISSELECTED
+        {
+            get { return _ISSELECTED; }
+            set 
+            { 
+                _ISSELECTED = value;
+                OnPropertyChanged("ISSELECTED");
+            }
+        }
         public IEnumerable<DataPoint> DataPoints
         {
             get { return dataPoints; }
@@ -51,6 +62,30 @@ namespace TRAINER.ViewModel
                 GetPoints();
             }
         }
+
+        private RelayCommand addCommand;
+        public RelayCommand AddCommand
+        {
+            //Save почему-то не работает, не могу понять почему. При нажатии на кнопку даже не входит сюда
+            // не успеваю доделать, простите... :(
+            get
+            {
+                return addCommand ??
+                  (addCommand = new RelayCommand(obj =>
+                  {
+                      using (StreamWriter writer = File.CreateText($"{Directory.GetCurrentDirectory}\\SAVED_USERS\\{selectedUser}.json"))
+                      {
+                          string output = JsonConvert.SerializeObject(selectedUser);
+                          writer.Write(output);
+                      }
+                  }));
+            }
+        }
+
+
+       
+
+
 
 
 
@@ -76,7 +111,7 @@ namespace TRAINER.ViewModel
 
                 currentUser.StepsMax = User.Steps.Values.Max();
 
-                if (currentUser.StepsAverage <= currentUser.StepsMax * 0.2 || currentUser.StepsAverage >= currentUser.StepsMin * 0.2)
+                if (currentUser.StepsMax >= currentUser.StepsAverage * 1.2 || currentUser.StepsAverage >= currentUser.StepsMin * 1.2)
                 {
                     currentUser.Colour = true;
                 }
@@ -102,6 +137,7 @@ namespace TRAINER.ViewModel
                         foreach (var thing in User.Steps)
                         {
                             int y = User.Steps[i];
+                            
                             listPoints.Add(new DataPoint { ValueX = i, ValueY = y });
                             i++;
                         }
@@ -117,7 +153,20 @@ namespace TRAINER.ViewModel
                 return null;
             }
         }
-
+        //public void SaveSelected()
+        //{
+        //    foreach (var User in USERS)
+        //    {
+        //        if (_ISSELECTED == true)
+        //        {
+        //            using (StreamWriter writer = File.CreateText($"{Directory.GetCurrentDirectory}\\SAVED_USERS\\"))
+        //            {
+        //                string output = JsonConvert.SerializeObject(User);
+        //                writer.Write(output);
+        //            }
+        //        }
+        //    }
+        //}
 
 
         //public Polyline Dothing(UserModel_InTable SelectedUser)
@@ -135,10 +184,7 @@ namespace TRAINER.ViewModel
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(prop));
 
-                
-                //UserGraph userGraph = new();
-                //Dictionary<int, int> DotDictionary = userGraph.GetGraphicDots(SelectedUser);
-                //MyPolyLine = userGraph.DrawUserGraphic(DotDictionary);
+ 
 
             }
         }

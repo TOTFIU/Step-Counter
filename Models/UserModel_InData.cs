@@ -10,9 +10,8 @@ namespace TRAINER.Models
     {
 		
 
-		
+		public Dictionary<int,int> Rank { get; set; }
         public string User { get; set; }
-        public Dictionary<int,int> Rank { get; set; }
 		public Dictionary<int, string> Status { get; set; }
 		public Dictionary<int,int> Steps { get; set; }
 
